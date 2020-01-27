@@ -52,7 +52,7 @@ app.post("/twilio/prod/testsms", (req, res) => {
 		})
 		.then(message => {
 			console.log(message);
-			res.send(message.sid)
+			res.send(message.sid);
 		})
 		.catch(err => {
 			console.log(err);
@@ -111,6 +111,32 @@ app.get("/twilio/dev/testsms", (req, res) => {
 			console.log(err);
 			res.status(500).send(err);
 		});
+});
+
+app.get("/twilio/prod/conv/start/:name", (req, res) => {
+	const { name } = req.params;
+	var cSid;
+	clientProd.conversations.conversations
+		.create({
+			friendlyName: name
+		})
+		.then(conversation => res.send(conversation.sid))
+		.catch(err => res.status(500).send(err));
+});
+
+app.get("/twilio/prod/conv/participant/add/:type/:number/:sid", (req, res) => {
+	const { type, number, sid } = req.params;
+	let channel = `${type === "sms" ? "" : type}${type === "sms" ? "" : ":"}${number}`;
+	let proxyBinding = `${type === "sms" ? "" : type}${type === "sms" ? "" : ":"}+16314064104`;
+	clientProd.conversations
+		.conversations(sid)
+		.participants.create({
+			"messagingBinding.address": `${channel}`,
+			"messagingBinding.proxyAddress":
+				`${proxyBinding}`
+		})
+		.then(participant => res.send(participant.sid))
+		.catch(err => res.status(500).send(err));
 });
 
 app.get("/twilio/prod/testwhatsapp", (req, res) => {
