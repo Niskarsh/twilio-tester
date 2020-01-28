@@ -180,6 +180,21 @@ app.get("/twilio/prod/testwhatsapp", (req, res) => {
 			console.log(err);
 			res.status(500).send(err);
 		});
+
+	clientProd.messages
+		.create({
+			from: "whatsapp:+16314064104",
+			body: `Thank you for applying for SOAL Product Engineering. Your interview is scheduled for the following date and time.`,
+			to: "whatsapp:+919706671567"
+		})
+		.then(message => {
+			console.log(message);
+			res.send(message);
+		})
+		.catch(err => {
+			console.log(err);
+			res.status(500).send(err);
+		});
 });
 
 app.use("/twilio", twilioMiddleware);
