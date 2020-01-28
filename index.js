@@ -126,18 +126,44 @@ app.get("/twilio/prod/conv/start/:name", (req, res) => {
 
 app.get("/twilio/prod/conv/participant/add/:type/:number/:sid", (req, res) => {
 	const { type, number, sid } = req.params;
-	let channel = `${type === "sms" ? "" : type}${type === "sms" ? "" : ":"}${number}`;
-	let proxyBinding = `${type === "sms" ? "" : type}${type === "sms" ? "" : ":"}+16314064104`;
+	let channel = `${type === "sms" ? "" : type}${
+		type === "sms" ? "" : ":"
+	}${number}`;
+	let proxyBinding = `${type === "sms" ? "" : type}${
+		type === "sms" ? "" : ":"
+	}+16314064104`;
+	console.log(channel, proxyBinding);
+	// res.send(proxyBinding)
 	clientProd.conversations
 		.conversations(sid)
 		.participants.create({
 			"messagingBinding.address": `${channel}`,
-			"messagingBinding.proxyAddress":
-				`${proxyBinding}`
+			"messagingBinding.proxyAddress": `${proxyBinding}`
 		})
 		.then(participant => res.send(participant.sid))
 		.catch(err => res.status(500).send(err));
 });
+
+app.get(
+	"/twilio/prod/conv/participant/remove/:type/:number/:sid/:mid",
+	(req, res) => {
+		const { type, number, sid, mid } = req.params;
+		let channel = `${type === "sms" ? "" : type}${
+			type === "sms" ? "" : ":"
+		}${number}`;
+		let proxyBinding = `${type === "sms" ? "" : type}${
+			type === "sms" ? "" : ":"
+		}+16314064104`;
+		console.log(channel, proxyBinding);
+		// res.send(proxyBinding)
+		clientProd.conversations
+			.conversations(sid)
+			.participants(mid)
+			.remove()
+			.then(participant => res.send(participant))
+			.catch(err => res.status(500).send(err));
+	}
+);
 
 app.get("/twilio/prod/testwhatsapp", (req, res) => {
 	clientProd.messages
@@ -161,9 +187,9 @@ app.use("/twilio", twilioMiddleware);
 app.post("/twilio/endpoint", (req, res) => {
 	clientProd.messages
 		.create({
-			from: "+16314064104",
+			from: "whatsapp:+16314064104",
 			body: `${req.body.Body}`,
-			to: "+916386717156"
+			to: "whatsapp:+919706671567"
 		})
 		.then(message => {
 			console.log(req.body);
